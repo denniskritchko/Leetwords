@@ -1,0 +1,93 @@
+PYTHON: Snake that writes code instead of biting
+PUZZLE: Brain teaser that makes you feel both smart and dumb
+ALGORITHM: Recipe for computers that never includes salt
+GENERATOR: Factory that makes things without coffee breaks
+CROSSWORD: Word maze that makes you question your vocabulary
+CODE: Modern poetry that only computers truly appreciate
+PROGRAMMING: Art of telling a computer exactly what you want, only to get what you asked for
+SOFTWARE: Stuff that turns coffee into computer instructions
+DEVELOPER: Professional googler with coding skills
+COMPUTER: Electronic brain that does what you tell it, not what you want
+FUNCTION: Code container that promises to return something... eventually
+VARIABLE: Digital box that never stays constant
+CLASS: Blueprint for objects that sometimes skip their constructor
+OBJECT: Instance of reality in a virtual world
+METHOD: Function that belongs to a class but acts independently
+INTERFACE: Contract that everyone agrees to implement but nobody reads
+LIBRARY: Collection of code that someone else wrote so you don't have to
+PACKAGE: Bundle of code that hopes to be imported
+MODULE: Code file that thinks it's special enough to be imported
+SYSTEM: Complex arrangement that works by magic until it doesn't
+DATA: Information that's worth more than the computer storing it
+STRUCTURE: Organization system that makes sense until you need to modify it
+ARRAY: List that knows math
+LIST: Array that went to liberal arts school
+DICTIONARY: Key-value relationship counselor
+STACK: Pile of data that follows 'last in, first out' like a cat
+QUEUE: Line of data that actually follows the rules
+TREE: Data structure that grows downward
+GRAPH: Network of nodes that's not on social media
+SEARCH: Hide and seek champion of algorithms
+SORT: Process of organizing data that always takes longer than you think
+RECURSION: See 'recursion'
+ITERATION: Loop that promises to end... eventually
+LOOP: Code's way of saying 'again, again!'
+DEBUG: Detective work for code crimes
+ERROR: Computer's way of saying 'you messed up'
+EXCEPTION: Unexpected party crasher in your code
+APP: Program that thinks it's too cool to be called a program
+WEB: Spider's creation that caught the whole world
+GAME: Interactive entertainment that eats your time
+FILE: Digital drawer that never gets full
+USER: Person who expects computers to read minds
+VIEW: Window to your data's soul
+FORM: Digital paperwork that still feels like paperwork
+TEXT: Letters that computers pretend to understand
+EDIT: Digital eraser and pencil dance
+SAVE: Ctrl+S reflex action
+HELP: Documentation that you read only when desperate
+TOOL: Digital Swiss Army knife
+MENU: List of options you'll explore only once
+BYTE: Eating a 0 or 1
+WORD: Group of bytes having a meeting
+TYPE: Category that doesn't like surprises
+NAME: Label that follows conventions until it doesn't
+CALL: Function's dinner bell
+LINK: Digital handshake between files
+HOST: Computer that opens its ports to strangers
+PORT: Digital doorway that firewalls love to block
+TIME: Resource that debugging consumes most
+DATE: Calendar entry that causes bugs across time zones
+MATH: Universal language that computers actually understand
+GRID: Excel's favorite playground
+CELL: Grid's smallest room
+LINE: Code that hopes to be executed
+DRAW: Pixel painter's paradise
+FONT: Digital fashion for letters
+AND: Boolean matchmaker
+THE: Article that demands attention
+FOR: Loop's favorite word
+BUT: Exception's favorite word
+NOT: Boolean opposite day
+ALL: Collection's group hug
+ANY: Database's wild card
+NEW: Object's birthday moment
+OLD: Legacy code's status
+BIG: Data's size problem
+RED: Error message's favorite color
+SUN: Star that doesn't run Java
+CAT: Unix command or internet's favorite animal
+DOG: Loyal debugger
+HAT: White or black, hacker's choice
+CAR: Object that drives classes
+RUN: Command that crosses fingers
+SEE: Visual bug hunting
+EAT: What bugs do to memory
+USE: Import's reason for being
+GET: Getter's only job
+PUT: Setter's daily task
+TRY: Block that expects failure
+SAY: Console's voice
+ASK: Input's invitation
+YES: Boolean's optimistic view
+NO: Boolean's pessimistic view 

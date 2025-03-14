@@ -1,358 +1,16 @@
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, Frame, Label, Button, Entry, StringVar
-import random
-import string
-import os
-import json
-from collections import defaultdict
-import time
 import traceback
-
-class CrosswordGenerator:
-    def __init__(self, dictionary_path=None):
-        # Load dictionary or use default words
-        self.words_by_length = defaultdict(list)
-        self.clues = {}
-        self.load_dictionary(dictionary_path)
-        
-        # Grid properties
-        self.size = 15  # Default grid size
-        self.grid = None
-        self.word_list = []
-        self.debug_info = []
-        
-    def load_dictionary(self, dictionary_path):
-        """Load words and clues from a dictionary file"""
-        try:
-            if dictionary_path and os.path.exists(dictionary_path):
-                with open(dictionary_path, 'r', encoding='utf-8') as f:
-                    for line in f:
-                        line = line.strip()
-                        if not line or ':' not in line:
-                            continue
-                        word, clue = line.split(':', 1)
-                        word = word.strip().upper()
-                        clue = clue.strip()
-                        if len(word) >= 3 and all(c.isalpha() for c in word):
-                            self.words_by_length[len(word)].append(word)
-                            self.clues[word] = clue
-            else:
-                raise FileNotFoundError("Dictionary file not found")
-        except Exception as e:
-            print(f"Error loading dictionary: {e}")
-            raise
-    
-    def set_size(self, size):
-        """Set the size of the crossword grid"""
-        self.size = max(10, min(size, 25))  # Limit size between 10 and 25
-    
-    def create_empty_grid(self):
-        """Initialize an empty grid"""
-        self.grid = [[' ' for _ in range(self.size)] for _ in range(self.size)]
-        self.word_list = []
-        # Save the existing clues
-        saved_clues = self.clues.copy()
-        self.clues = saved_clues  # Restore the clues instead of clearing them
-        self.debug_info = []
-    
-    def can_place_word(self, word, row, col, horizontal):
-        """Check if a word can be placed at the given position"""
-        length = len(word)
-        
-        # Check boundaries
-        if horizontal and col + length > self.size:
-            return False
-        if not horizontal and row + length > self.size:
-            return False
-        
-        # Check for negative indices
-        if row < 0 or col < 0:
-            return False
-        
-        intersections = 0
-        for i in range(length):
-            r, c = row, col
-            if horizontal:
-                c += i
-            else:
-                r += i
-            
-            # Check if position is valid
-            if r < 0 or r >= self.size or c < 0 or c >= self.size:
-                return False
-                
-            # Check if the cell already contains a letter
-            if self.grid[r][c] != ' ' and self.grid[r][c] != word[i]:
-                return False
-            
-            # Count intersections
-            if self.grid[r][c] == word[i]:
-                intersections += 1
-                
-            # Check adjacent cells (no touching words allowed except at intersections)
-            if horizontal:
-                # Check above and below
-                if r > 0 and self.grid[r-1][c] != ' ' and (i == 0 or i == length-1 or self.grid[r][c] == ' '):
-                    return False
-                if r < self.size-1 and self.grid[r+1][c] != ' ' and (i == 0 or i == length-1 or self.grid[r][c] == ' '):
-                    return False
-                
-                # Check left edge
-                if i == 0 and c > 0 and self.grid[r][c-1] != ' ':
-                    return False
-                
-                # Check right edge
-                if i == length-1 and c < self.size-1 and self.grid[r][c+1] != ' ':
-                    return False
-            else:
-                # Check left and right
-                if c > 0 and self.grid[r][c-1] != ' ' and (i == 0 or i == length-1 or self.grid[r][c] == ' '):
-                    return False
-                if c < self.size-1 and self.grid[r][c+1] != ' ' and (i == 0 or i == length-1 or self.grid[r][c] == ' '):
-                    return False
-                
-                # Check top edge
-                if i == 0 and r > 0 and self.grid[r-1][c] != ' ':
-                    return False
-                
-                # Check bottom edge
-                if i == length-1 and r < self.size-1 and self.grid[r+1][c] != ' ':
-                    return False
-        
-        # For non-first word, require at least one intersection
-        if len(self.word_list) > 0 and intersections == 0:
-            return False
-            
-        return True
-    
-    def place_word(self, word, row, col, horizontal, clue=""):
-        """Place a word on the grid"""
-        try:
-            for i, letter in enumerate(word):
-                if horizontal:
-                    self.grid[row][col + i] = letter
-                else:
-                    self.grid[row + i][col] = letter
-            
-            self.word_list.append((word, row, col, horizontal))
-            if clue:
-                self.clues[word] = clue
-                
-        except Exception as e:
-            self.debug_info.append(f"Error placing word {word} at ({row}, {col}): {str(e)}")
-            return False
-        return True
-    
-    def generate_crossword(self, min_words=10, max_attempts=1000):
-        """Generate a crossword puzzle"""
-        self.create_empty_grid()
-        self.debug_info = []
-        
-        # Check if we have any words
-        if not any(self.words_by_length.values()):
-            self.debug_info.append("No words available in dictionary")
-            return False
-        
-        # Place the first word in the middle
-        available_lengths = sorted([length for length, words in self.words_by_length.items() 
-                                  if words and length <= self.size], reverse=True)
-        
-        if not available_lengths:
-            self.debug_info.append("No words of appropriate length found in dictionary")
-            return False
-            
-        word_length = available_lengths[0]
-        if not self.words_by_length[word_length]:
-            self.debug_info.append(f"No words of length {word_length} available")
-            return False
-            
-        word = random.choice(self.words_by_length[word_length])
-        start_col = max(0, min((self.size - word_length) // 2, self.size - word_length))
-        start_row = self.size // 2
-        
-        if not self.place_word(word, start_row, start_col, True):
-            self.debug_info.append(f"Failed to place first word: {word}")
-            return False
-            
-        # Try to place more words
-        attempts = 0
-        used_words = {word}
-        fallback_used = False
-        
-        while len(self.word_list) < min_words and attempts < max_attempts:
-            attempts += 1
-            
-            # Choose a random word from current words to intersect with
-            if not self.word_list:
-                self.debug_info.append("No words in word list to build from")
-                break
-                
-            ref_word, ref_row, ref_col, ref_horizontal = random.choice(self.word_list)
-            
-            # Choose a random position in the reference word
-            ref_pos = random.randint(0, len(ref_word) - 1)
-            letter = ref_word[ref_pos]
-            
-            # Calculate the position in the grid
-            if ref_horizontal:
-                pos_row, pos_col = ref_row, ref_col + ref_pos
-            else:
-                pos_row, pos_col = ref_row + ref_pos, ref_col
-            
-            # Try to place a new word through this position
-            direction = not ref_horizontal  # Perpendicular to reference word
-            
-            # Get words containing the intersection letter
-            potential_words = []
-            for length, words in self.words_by_length.items():
-                if length <= 2:  # Skip very short words
-                    continue
-                    
-                # Skip if word would go out of bounds
-                max_extension = length - 1  # Maximum cells the word extends from intersection
-                if direction and (pos_row - max_extension < 0 or pos_row + max_extension >= self.size):
-                    continue
-                if not direction and (pos_col - max_extension < 0 or pos_col + max_extension >= self.size):
-                    continue
-                    
-                for word in words:
-                    if word in used_words:
-                        continue
-                        
-                    # Find all positions where this letter appears in the word
-                    positions = [i for i, char in enumerate(word) if char == letter]
-                    for intersection_pos in positions:
-                        potential_words.append((word, intersection_pos))
-            
-            if not potential_words and not fallback_used and attempts > max_attempts // 2:
-                # Fallback: add a word that doesn't intersect with any existing word
-                fallback_used = True
-                self.debug_info.append("Using fallback word placement")
-                
-                # Find an empty area in the grid
-                for r in range(self.size):
-                    for c in range(self.size):
-                        # Try to place a horizontal word
-                        for length, words in self.words_by_length.items():
-                            if length <= 3 or c + length > self.size:
-                                continue
-                                
-                            word_candidates = [w for w in words if w not in used_words]
-                            if not word_candidates:
-                                continue
-                                
-                            word = random.choice(word_candidates)
-                            if self.can_place_word(word, r, c, True):
-                                if self.place_word(word, r, c, True):
-                                    used_words.add(word)
-                                    break
-                        
-                        # Try to place a vertical word
-                        for length, words in self.words_by_length.items():
-                            if length <= 3 or r + length > self.size:
-                                continue
-                                
-                            word_candidates = [w for w in words if w not in used_words]
-                            if not word_candidates:
-                                continue
-                                
-                            word = random.choice(word_candidates)
-                            if self.can_place_word(word, r, c, False):
-                                if self.place_word(word, r, c, False):
-                                    used_words.add(word)
-                                    break
-            
-            if not potential_words:
-                continue
-                
-            random.shuffle(potential_words)
-            
-            placed = False
-            for word, intersection_pos in potential_words:
-                try:
-                    if direction:  # Vertical
-                        start_row = pos_row - intersection_pos
-                        if start_row < 0 or start_row + len(word) > self.size:
-                            continue
-                        if self.can_place_word(word, start_row, pos_col, False):
-                            if self.place_word(word, start_row, pos_col, False):
-                                used_words.add(word)
-                                placed = True
-                                break
-                    else:  # Horizontal
-                        start_col = pos_col - intersection_pos
-                        if start_col < 0 or start_col + len(word) > self.size:
-                            continue
-                        if self.can_place_word(word, pos_row, start_col, True):
-                            if self.place_word(word, pos_row, start_col, True):
-                                used_words.add(word)
-                                placed = True
-                                break
-                except Exception as e:
-                    self.debug_info.append(f"Error trying to place word {word}: {str(e)}")
-        
-        self.debug_info.append(f"Generation completed with {len(self.word_list)} words after {attempts} attempts")
-        return len(self.word_list) > 0
-    
-    def get_numbered_grid(self):
-        """Get the grid with numbers for the clues"""
-        numbered_grid = [row[:] for row in self.grid]
-        number_positions = {}
-        
-        # Sort words to ensure consistent numbering
-        sorted_words = sorted(self.word_list, key=lambda w: (w[1], w[2]))
-        
-        current_number = 1
-        for word, row, col, horizontal in sorted_words:
-            if (row, col) not in number_positions:
-                number_positions[(row, col)] = current_number
-                current_number += 1
-        
-        return numbered_grid, number_positions
-    
-    def get_clues_list(self):
-        """Get formatted lists of across and down clues"""
-        across_clues = []
-        down_clues = []
-        
-        # Sort words to ensure consistent numbering
-        sorted_words = sorted(self.word_list, key=lambda w: (w[1], w[2]))
-        
-        number_positions = {}
-        current_number = 1
-        
-        for word, row, col, horizontal in sorted_words:
-            if (row, col) not in number_positions:
-                number_positions[(row, col)] = current_number
-                current_number += 1
-                
-            clue_num = number_positions[(row, col)]
-            clue_text = self.clues.get(word, f"A {len(word)}-letter word")
-            
-            if horizontal:
-                across_clues.append((clue_num, clue_text, word))
-            else:
-                down_clues.append((clue_num, clue_text, word))
-        
-        return sorted(across_clues), sorted(down_clues)
-    
-    def get_cells_with_letters(self):
-        """Get a list of all cells that should contain letters"""
-        cells = []
-        for r in range(self.size):
-            for c in range(self.size):
-                if self.grid[r][c] != ' ':
-                    cells.append((r, c))
-        return cells
-
+import time
+from crossword import CrosswordGenerator
 
 class CrosswordApp:
-    def __init__(self, root):
+    def __init__(self, root, dictionary_path='dictionary.txt'):
         self.root = root
         self.root.title("Crossword Puzzle Generator")
         self.root.geometry("1000x700")
         
-        self.generator = CrosswordGenerator()
+        self.generator = CrosswordGenerator(dictionary_path)
         self.cell_entries = {}  # Store references to entry widgets
         self.solution_grid = None  # Store the solution
         
@@ -463,6 +121,14 @@ class CrosswordApp:
             self.down_clues_text.pack(fill=tk.BOTH, expand=True)
         
         self.current_tab = tab_name
+    
+    def validate_entry(self, value):
+        """Validate user input to ensure it's a single uppercase letter"""
+        if len(value) > 1:
+            return False
+        if len(value) == 1 and not value.isalpha():
+            return False
+        return True
     
     def generate_crossword(self):
         try:
@@ -604,14 +270,6 @@ class CrosswordApp:
             error_msg += traceback.format_exc()
             self.show_error_dialog("Error", error_msg)
     
-    def validate_entry(self, value):
-        """Validate user input to ensure it's a single uppercase letter"""
-        if len(value) > 1:
-            return False
-        if len(value) == 1 and not value.isalpha():
-            return False
-        return True
-    
     def check_answers(self):
         """Check the user's answers against the solution"""
         if not self.solution_grid:
@@ -716,11 +374,8 @@ class CrosswordApp:
         error_text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         error_text.insert(tk.END, error_message)
         error_text.config(state=tk.DISABLED)
-    
-    # ... existing code ...
 
-# Add at the end of the file:
 if __name__ == "__main__":
     root = tk.Tk()
     app = CrosswordApp(root)
-    root.mainloop()
+    root.mainloop() 
