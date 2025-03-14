@@ -48,7 +48,7 @@ SAVE: Ctrl+S reflex action
 HELP: Documentation that you read only when desperate
 TOOL: Digital Swiss Army knife
 MENU: List of options you'll explore only once
-BYTE: Eating a 0 or 1
+BYTE: Eating a 0 or 1, 8 times 
 WORD: Group of bytes having a meeting
 TYPE: Category that doesn't like surprises
 NAME: Label that follows conventions until it doesn't
